@@ -32,8 +32,9 @@ int main(int argc, char* argv[]) {
 
   auto [previous, current] = getNextTwoBytes(infile);
 
-  if (previous == PREFIX && current == SOI) {
+  if (previous != PREFIX || current != SOI) {
     cout << "Error - Not a JPEG file (does not begin with 0xFFD8)" << "\n";
+    infile.close();
     return 1;
   } 
 
