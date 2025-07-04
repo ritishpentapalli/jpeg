@@ -5,7 +5,7 @@
 
 using namespace std;
 
-void decodeAPPnSegment(ifstream &infile, byte_t current) {
+void readAPPnSegment(ifstream &infile, byte_t current) {
     
     uint length = (infile.get() << 8) + infile.get();
     for (int i=0; i<length-2; i++) { // length-2 because we already read two bytes when reading APPn marker
@@ -15,6 +15,42 @@ void decodeAPPnSegment(ifstream &infile, byte_t current) {
     //     cout << "APP1 found\n";
     //     decodeEXIF(infile);
     // }
+}
+
+void readQuantizationTable(ifstream &infile, int qt[4][64], int qtSet[4]) {
+
+    int length = (infile.get() << 8) + infile.get();
+    // cout << length << "\n";
+    length -= 2;
+
+    
+    while (length > 0) {
+        byte_t tableInfo = infile.get();
+        length -= 1;
+
+        int tablePrecision = tableInfo >> 4;
+        int tableId = tableInfo & 0x0F;
+        cout << tablePrecision << " " << tableId << "\n";
+        
+        qtSet[tableId] = 1;
+        if (tablePrecision == 0) {
+            for (int i=0; i<64; i++) {
+                qt[tableId][i] = infile.get();
+                length -= 1;
+            }
+        }
+    }
+    for (int j=0; j<4; j++) {
+        for (int i=0; i < 64; i++) {
+            cout << qt[j][i] << " ";
+        }
+        cout << "\n";
+    }
+    for (int i=0; i<4; i++) {
+        cout << qtSet[i] << " ";
+    }
+    
+    
 }
 
 int main(int argc, char* argv[]) {
@@ -56,7 +92,7 @@ int main(int argc, char* argv[]) {
 
         readAllAPPn = true;
         if (current >= APP0 && current <= APP15) {
-            decodeAPPnSegment(infile, current);
+            readAPPnSegment(infile, current);
             readAllAPPn = false;
         }
 
@@ -68,6 +104,14 @@ int main(int argc, char* argv[]) {
         infile.close();
         return 1;
     }
+    
+    int quantizationTables[4][64] = {0};
+    int quantizationTablesSet[4] = {0};
+
+    readQuantizationTable(infile, quantizationTables, quantizationTablesSet);
+    
+
+
 
 
 
