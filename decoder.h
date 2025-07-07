@@ -29,6 +29,20 @@ const byte_t APP15 = 0xEF;
 
 const byte_t DQT = 0xDB; // Define Quantization Table
 
+const byte_t SOF0 = 0xC0; // Baseline DCT
+const byte_t SOF1 = 0xC1; // Extended sequential DCT
+const byte_t SOF2 = 0xC2; // Progressive DCT
+const byte_t SOF3 = 0xC3; // Lossless (sequential)
+const byte_t SOF5 = 0xC5; // Differential sequential DCT
+const byte_t SOF6 = 0xC6; // Differential progressive DCT
+const byte_t SOF7 = 0xC7; // Differential lossless (sequential)
+const byte_t SOF9 = 0xC9; // Extended sequential DCT, arithmetic coding
+const byte_t SOF10 = 0xCA; // Progressive DCT, arithmetic coding
+const byte_t SOF11 = 0xCB; // Lossless (sequential), arithmetic coding
+const byte_t SOF13 = 0xCD; // Differential sequential DCT, arithmetic coding
+const byte_t SOF14 = 0xCE; // Differential progressive DCT, arithmetic coding
+const byte_t SOF15 = 0xCF; // 	Differential lossless (sequential), arithmetic coding
+
 int zigZagMap[] = { // Zigzag map for quantization tables
     0, 1, 8, 16, 9, 2, 3, 10,
     17, 24, 32, 25, 18, 11, 4, 5,

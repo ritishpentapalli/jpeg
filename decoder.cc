@@ -116,6 +116,8 @@ int main(int argc, char* argv[]) {
         return 1;
     }
     
+
+    // Reading Quantization Tables
     int quantizationTables[4][64] = {0}; // JPEG standard allows for upto 4 QTs
     int quantizationTablesSet[4] = {0}; // Set to 1 if that QT exists
     // As an example, if only two QTs exist in the file, the array would be {1, 1, 0, 0}
@@ -138,27 +140,7 @@ int main(int argc, char* argv[]) {
         }
     }
     
-    // for (int j=0; j<4; j++) {
-    //     for (int i=0; i < 64; i++) {
-    //         if (i%8 == 0) {
-    //             cout << "\n";
-    //         }
-    //         cout << quantizationTables[j][i] << " ";
-    //     }
-    //     cout << "\n";
-    // }
-    // for (int i=0; i<4; i++) {
-    //     cout << quantizationTablesSet[i] << " ";
-    // }
-    
-
-
-
-
-
-
-
-
+    // Reading Frames    
 
     return 0;
 }
