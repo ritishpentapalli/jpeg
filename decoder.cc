@@ -5,6 +5,21 @@
 
 using namespace std;
 
+int readStartOfFrame(ifstream &infile) {
+
+    int length = (infile.get() << 8) + infile.get();
+    length -= 2;
+
+    int precision = infile.get();
+    length -= 1;
+    
+    int height = (infile.get() << 8) + infile.get();
+    int width = (infile.get() << 8) + infile.get();
+
+    cout << length << " " << precision << " " << height << " " << width;
+
+}
+
 void readAPPnSegment(ifstream &infile, byte_t current) {
     
     uint length = (infile.get() << 8) + infile.get();
@@ -59,10 +74,7 @@ int readQuantizationTable(ifstream &infile, int qt[4][64], int qtSet[4]) {
         return 1;
     }
 
-    return 0;
-    
-    
-    
+    return 0;   
 }
 
 int main(int argc, char* argv[]) {
@@ -140,7 +152,19 @@ int main(int argc, char* argv[]) {
         }
     }
     
-    // Reading Frames    
+    // Read SoF
+    
+    previous = infile.get();
+    current = infile.get();
 
+    if (previous != PREFIX) {
+        cout << "Error - Did not find prefix before SoF\n";
+        infile.close();
+        return 1;
+    }
+
+    if (current == SOF0) { // Baseline DCT
+        readStartOfFrame(infile);
+    }
     return 0;
 }
