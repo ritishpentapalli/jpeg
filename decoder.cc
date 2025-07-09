@@ -7,6 +7,8 @@ using namespace std;
 
 int readStartOfFrame(ifstream &infile) {
 
+    int SoFData[12] = {0};
+
     int length = (infile.get() << 8) + infile.get();
     length -= 2;
 
@@ -15,9 +17,39 @@ int readStartOfFrame(ifstream &infile) {
     
     int height = (infile.get() << 8) + infile.get();
     int width = (infile.get() << 8) + infile.get();
+    length -= 4;
+    SoFData[0] = height;
+    SoFData[1] = width;
 
-    cout << length << " " << precision << " " << height << " " << width;
+    int numberOfChannels = infile.get();
+    length -= 1;
+    SoFData[2] = numberOfChannels;
 
+    SoFData[3] = (int) infile.get(); // Component ID
+    SoFData[4] = (int) infile.get(); // Sampling Factor
+    SoFData[5] = (int) infile.get(); // Quantization Table ID
+    length -= 3;
+
+    if (numberOfChannels == 1) { // Grayscale
+        
+    }
+    else if (numberOfChannels == 3) { // YCbCr or RGB
+        SoFData[6] = (int) infile.get();
+        SoFData[7] = (int) infile.get();
+        SoFData[8] = (int) infile.get();
+        SoFData[9] = (int) infile.get();
+        SoFData[10] = (int) infile.get();
+        SoFData[11] = (int) infile.get();
+        length -= 6;
+    }
+    else if (numberOfChannels == 4) { // CMYK
+        cout << "CMYK jpeg\n";
+        return 1; 
+    }
+
+    // for (int i=0; i<12; i++) {
+    //     cout << SoFData[i] << " "; 
+    // }
 }
 
 void readAPPnSegment(ifstream &infile, byte_t current) {
