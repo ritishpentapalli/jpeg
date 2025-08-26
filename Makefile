@@ -10,3 +10,6 @@ decodeAPPn.o: decodeAPPn.cc decodeAPPn.h
 
 clean:
 	rm decoder.o decodeAPPn.o jpeg
+
+test: jpeg
+	./jpeg test-images/mouse.jpg
