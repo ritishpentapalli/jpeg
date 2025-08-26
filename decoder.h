@@ -43,6 +43,8 @@ const byte_t SOF13 = 0xCD; // Differential sequential DCT, arithmetic coding
 const byte_t SOF14 = 0xCE; // Differential progressive DCT, arithmetic coding
 const byte_t SOF15 = 0xCF; // 	Differential lossless (sequential), arithmetic coding
 
+const byte_t DHT = 0xC4; // Define Huffman Table
+
 int zigZagMap[] = { // Zigzag map for quantization tables
     0, 1, 8, 16, 9, 2, 3, 10,
     17, 24, 32, 25, 18, 11, 4, 5,

@@ -5,9 +5,7 @@
 
 using namespace std;
 
-int readStartOfFrame(ifstream &infile) {
-
-    int SoFData[12] = {0};
+int readStartOfFrame(ifstream &infile, int SoFData[]) {
 
     int length = (infile.get() << 8) + infile.get();
     length -= 2;
@@ -31,7 +29,6 @@ int readStartOfFrame(ifstream &infile) {
     length -= 3;
 
     if (numberOfChannels == 1) { // Grayscale
-        
     }
     else if (numberOfChannels == 3) { // YCbCr or RGB
         SoFData[6] = (int) infile.get();
@@ -53,7 +50,8 @@ int readStartOfFrame(ifstream &infile) {
 }
 
 void readAPPnSegment(ifstream &infile, byte_t current) {
-    
+
+    // TODO: Write decoder for different APPn segments
     uint length = (infile.get() << 8) + infile.get();
     for (int i=0; i<length-2; i++) { // length-2 because we already read two bytes when reading APPn marker
         infile.get();
@@ -69,7 +67,6 @@ int readQuantizationTable(ifstream &infile, int qt[4][64], int qtSet[4]) {
     int length = (infile.get() << 8) + infile.get(); // Big-endian
     length -= 2; // Since these two bytes are also included in the length
 
-    
     while (length > 0) { // Keep looking for QTs until length is 0
         byte_t tableInfo = infile.get();
         length -= 1;
@@ -102,7 +99,7 @@ int readQuantizationTable(ifstream &infile, int qt[4][64], int qtSet[4]) {
     }
 
     if (length != 0) {
-        cout << "Quantization segment length is not 1 after reading\n";
+        cout << "Quantization segment length is not 0 after reading\n";
         return 1;
     }
 
@@ -142,11 +139,11 @@ int main(int argc, char* argv[]) {
         previous = infile.get();
         current = infile.get();
         if (previous != PREFIX) {
-            cout << "Error - Not a JPEG file\n"; // This really should not happen
+            cout << "Error - Not a JPEG file\n"; // Byte right after SOI marker should be FF
         }
 
         readAllAPPn = true;
-        if (current >= APP0 && current <= APP15) {
+        if (current >= APP0 && current <= APP15) { // Checking for any application segment
             readAPPnSegment(infile, current);
             readAllAPPn = false;
         }
@@ -160,7 +157,6 @@ int main(int argc, char* argv[]) {
         return 1;
     }
     
-
     // Reading Quantization Tables
     int quantizationTables[4][64] = {0}; // JPEG standard allows for upto 4 QTs
     int quantizationTablesSet[4] = {0}; // Set to 1 if that QT exists
@@ -185,7 +181,6 @@ int main(int argc, char* argv[]) {
     }
     
     // Read SoF
-    
     previous = infile.get();
     current = infile.get();
 
@@ -195,8 +190,22 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
+    int SoFData[12] = {0};
     if (current == SOF0) { // Baseline DCT
-        readStartOfFrame(infile);
+        readStartOfFrame(infile, SoFData);
     }
+
+    #ifdef DEBUGINFO
+        cout << "SoF Data\n";
+        cout << "Height: " << SoFData[0] << "\n";
+        cout << "Width: " << SoFData[1] << "\n";
+        cout << "Number of Channels: " << SoFData[2] << "\n";
+    #endif
+
+    // TODO: Fix DRI
+    previous = infile.get();
+    current = infile.get();
+
+    cout << hex << (uint) previous << hex << (uint) current;
     return 0;
 }

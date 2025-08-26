@@ -3,7 +3,7 @@ jpeg: decoder.o decodeAPPn.o
 
 
 decoder.o: decoder.cc decoder.h decodeAPPn.h
-	g++ -Wall -c decoder.cc
+	g++ -Wall -DDEBUGINFO -c decoder.cc
 
 decodeAPPn.o: decodeAPPn.cc decodeAPPn.h
 	g++ -Wall -c decodeAPPn.cc
