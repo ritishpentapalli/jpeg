@@ -7,6 +7,8 @@ using namespace std;
 
 int readStartOfFrame(ifstream &infile, int SoFData[]) {
 
+    // TODO: isGreyscale
+
     int length = (infile.get() << 8) + infile.get();
     length -= 2;
 
@@ -207,5 +209,48 @@ int main(int argc, char* argv[]) {
     current = infile.get();
 
     cout << hex << (uint) previous << hex << (uint) current;
+
+    if (previous != PREFIX || current != DHT) {
+        cout << "Error - Did not find DHT marker\n";
+        infile.close();
+        return 1;
+    }
+    
+    int length = (infile.get() << 8) + infile.get();
+    length -= 2;
+
+    byte_t huffmanTables[2][4][162] = {0};
+    int huffmanTableFreqs[2][4][16] = {0};
+    int huffmanTableFreqCount[2][4] = {0};
+
+    while (length>0) {
+
+        byte_t tableInfo = infile.get();
+        length -= 1;
+        byte_t ACorDC = tableInfo>>4;
+        byte_t tableID = tableInfo&0x0F;
+        
+
+        for (int j=0; j<16;j++) {
+            int number = (int) infile.get();
+            length -= 1;
+            huffmanTableFreqs[ACorDC][tableID][j] = number;
+            huffmanTableFreqCount[ACorDC][tableID] += number;
+        }
+
+        for (int j=0;j<huffmanTableFreqCount[ACorDC][tableID];j++) {
+            huffmanTables[ACorDC][tableID][j] = infile.get();
+            length -= 1;
+        }
+        
+    }
+
+    previous = infile.get();
+    current = infile.get();
+
+    cout << hex << (uint) previous << hex << (uint) current;
+
+
+
     return 0;
 }
