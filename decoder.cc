@@ -199,10 +199,10 @@ int main(int argc, char* argv[]) {
         cout << "SoF Data\n";
         cout << "Height: " << SoFData[0] << "\n";
         cout << "Width: " << SoFData[1] << "\n";
-        cout << "Number of Channels: " << SoFData[2] << "\n";
+        cout << "Number of Channels: " << SoFData[2] << "\n\n";
     #endif
 
-    // TODO: Fix DRI
+    // TODO: Implement DRI
     previous = infile.get();
     current = infile.get();
 
