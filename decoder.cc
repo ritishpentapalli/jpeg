@@ -229,7 +229,6 @@ int main(int argc, char* argv[]) {
         length -= 1;
         byte_t ACorDC = tableInfo>>4;
         byte_t tableID = tableInfo&0x0F;
-        
 
         for (int j=0; j<16;j++) {
             int number = (int) infile.get();
