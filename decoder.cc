@@ -16,5 +16,11 @@ int main(int argc, char* argv[]) {
     const string fileName = argv[1];
 
     fileData* data = readFile(fileName);
+
+    if (data == nullptr) {
+        cout << "Null pointer returned\n";
+        return 1; 
+    }
+
     return 0;
 }

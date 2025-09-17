@@ -45,10 +45,10 @@ int readQuantizationTable(ifstream &infile, int qt[4][64], int qtSet[4]) {
                 length -= 1;
             }
         }
-        else if (tablePrecision == 1) {
+        else if (tablePrecision == 1) { // 16 bit precision
             for (int i=0; i<64; i++) {
-                qt[tableId][i] = (infile.get() << 8) + infile.get();
-                length -= 1;
+                qt[tableId][i] = (infile.get() << 8) + infile.get(); // since its 16 bit
+                length -= 2;
             } 
         }
     }
@@ -62,8 +62,6 @@ int readQuantizationTable(ifstream &infile, int qt[4][64], int qtSet[4]) {
 }
 
 int readStartOfFrame(ifstream &infile, int SoFData[]) {
-
-    // TODO: isGreyscale
 
     int length = (infile.get() << 8) + infile.get();
     length -= 2;
@@ -98,13 +96,16 @@ int readStartOfFrame(ifstream &infile, int SoFData[]) {
         length -= 6;
     }
     else if (numberOfChannels == 4) { // CMYK
-        cout << "CMYK jpeg\n";
+        cout << "Decoder doesn't handle CMYK jpegs\n";
         return 1; 
     }
 
-    // for (int i=0; i<12; i++) {
-    //     cout << SoFData[i] << " "; 
-    // }
+    if (length != 0) {
+        cout << "SOF length != 0 after reading everything\n";
+        return 1;
+    }
+
+    return 0;
 }
 
 fileData* readFile(const string &fileName) {
@@ -113,7 +114,7 @@ fileData* readFile(const string &fileName) {
     infile.open(fileName, ios::binary | ios::in);
 
     #ifdef DEBUGINFO
-    cout << "Decoding jpeg file: "<< fileName << "\n";
+    cout << "Decoding jpeg file: "<< fileName << "\n\n";
     #endif
 
     // Read first two bytes
@@ -139,7 +140,7 @@ fileData* readFile(const string &fileName) {
 
         readAllAPPn = true;
         if (current >= APP0 && current <= APP15) { // Checking for any application segment
-            readAPPnSegment(infile, current);
+            readAPPnSegment(infile, current); // Skipping all APPn segments
             readAllAPPn = false;
         }
 
@@ -184,33 +185,86 @@ fileData* readFile(const string &fileName) {
         }
     }
 
+    #ifdef DEBUGINFO // print out QTables
+    cout << "DQT Data \n\n";
+    for (int i=0; i<4; i++) {
+        cout << "Quantization Table ID:" << i;
+        for (int j=0; j<64; j++) {
+            if (j % 8 == 0) {
+                cout << "\n";
+            }
+            cout << data->quantizationTables[i][j] << " ";
+        }
+        cout << "\n\n";
+    }
+    cout << "###############" << "\n\n";
+    #endif
+
     // Read SoF
     previous = infile.get();
     current = infile.get();
 
     if (previous != PREFIX) {
-        cout << "Error - Did not find prefix before SoF\n";
+        cout << "Error - Did not find 0xFF after QTables\n";
         infile.close();
         delete data;
         return nullptr;
     }
 
     if (current == SOF0) { // Baseline DCT
-        readStartOfFrame(infile, data->SoFData);
+        int SOF_return = readStartOfFrame(infile, data->SoFData);
+        if (SOF_return != 0) {
+            cout << "Error reading SOF\n";
+            infile.close();
+            delete data;
+            return nullptr;
+        }
+    }
+    else if (current >= SOF1 && current <= SOF3) {
+        cout << "Decoder only handles Baseline DCT\n";
+        infile.close();
+        delete data;
+        return nullptr;
+    }
+    else {
+        cout << "Error - Did not find a DCT marker\n";
+        infile.close();
+        delete data;
+        return nullptr;
     }
 
-    #ifdef DEBUGINFO
-        cout << "SoF Data\n";
-        cout << "Height: " << SoFData[0] << "\n";
-        cout << "Width: " << SoFData[1] << "\n";
-        cout << "Number of Channels: " << SoFData[2] << "\n\n";
+    #ifdef DEBUGINFO // Print out SoF data
+        cout << "SoF Data\n\n";
+        cout << "Height: " << data->SoFData[0] << "\n";
+        cout << "Width: " << data->SoFData[1] << "\n";
+        cout << "Number of Channels: " << data->SoFData[2] << " -> ";
+        if (data->SoFData[2] == 1) {
+            cout << "Greyscale image\n\n";
+            cout << "Component ID: " << data->SoFData[3] << "\n";
+            cout << "Sampling Factor: " << data->SoFData[4] << "\n";
+            cout << "Quantization Table ID: " << data->SoFData[5] << "\n\n";
+        }
+        else if (data->SoFData[2] == 3) {
+            cout << "YCBCr image\n\n";
+            cout << "Y Component\n";
+            cout << "Component ID: " << data->SoFData[3] << "\n";
+            cout << "Sampling Factor: " << data->SoFData[4] << "\n";
+            cout << "Quantization Table ID: " << data->SoFData[5] << "\n\n";
+            cout << "Cb Component\n";
+            cout << "Component ID: " << data->SoFData[6] << "\n";
+            cout << "Sampling Factor: " << data->SoFData[7] << "\n";
+            cout << "Quantization Table ID: " << data->SoFData[8] << "\n\n";
+            cout << "Cr Component\n";
+            cout << "Component ID: " << data->SoFData[9] << "\n";
+            cout << "Sampling Factor: " << data->SoFData[10] << "\n";
+            cout << "Quantization Table ID: " << data->SoFData[11] << "\n\n";
+            cout << "###############" << "\n\n";
+        }
     #endif
 
     // TODO: Implement DRI
     previous = infile.get();
     current = infile.get();
-
-    cout << hex << (uint) previous << hex << (uint) current;
 
     if (previous != PREFIX || current != DHT) {
         cout << "Error - Did not find DHT marker\n";
@@ -240,7 +294,6 @@ fileData* readFile(const string &fileName) {
             data->huffmanTables[ACorDC][tableID][j] = infile.get();
             length -= 1;
         }
-        
     }
 
     previous = infile.get();
