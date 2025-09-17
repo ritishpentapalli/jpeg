@@ -108,6 +108,37 @@ int readStartOfFrame(ifstream &infile, int SoFData[]) {
     return 0;
 }
 
+int readHuffmanTable(ifstream &infile, byte_t huffmanTables[2][4][162], int huffmanTableFreqs[2][4][16], int huffmanTableFreqCount[2][4]) {
+
+    int length = (infile.get() << 8) + infile.get();
+    length -= 2;
+
+    while (length>0) {
+
+        byte_t tableInfo = infile.get();
+        length -= 1;
+        byte_t ACorDC = tableInfo>>4;
+        byte_t tableID = tableInfo&0x0F;
+
+        for (int j=0; j<16;j++) {
+            int number = (int) infile.get();
+            length -= 1;
+            huffmanTableFreqs[ACorDC][tableID][j] = number;
+            huffmanTableFreqCount[ACorDC][tableID] += number;
+        }
+
+        for (int j=0;j<huffmanTableFreqCount[ACorDC][tableID];j++) {
+            huffmanTables[ACorDC][tableID][j] = infile.get();
+            length -= 1;
+        }
+    }
+
+    if (length != 0) {
+        return 1;
+    }
+    return 0;
+}
+
 fileData* readFile(const string &fileName) {
 
     ifstream infile;
@@ -273,28 +304,35 @@ fileData* readFile(const string &fileName) {
         return nullptr;
     }
 
-    int length = (infile.get() << 8) + infile.get();
-    length -= 2;
-
-    while (length>0) {
-
-        byte_t tableInfo = infile.get();
-        length -= 1;
-        byte_t ACorDC = tableInfo>>4;
-        byte_t tableID = tableInfo&0x0F;
-
-        for (int j=0; j<16;j++) {
-            int number = (int) infile.get();
-            length -= 1;
-            data->huffmanTableFreqs[ACorDC][tableID][j] = number;
-            data->huffmanTableFreqCount[ACorDC][tableID] += number;
-        }
-
-        for (int j=0;j<data->huffmanTableFreqCount[ACorDC][tableID];j++) {
-            data->huffmanTables[ACorDC][tableID][j] = infile.get();
-            length -= 1;
-        }
+    int DHTstatus = readHuffmanTable(infile, data->huffmanTables, data->huffmanTableFreqs, data->huffmanTableFreqCount);
+    if (DHTstatus != 0) {
+        cout << "Error reading Huffman tables\n";
+        infile.close();
+        delete data;
+        return nullptr;
     }
+    
+    #ifdef DEBUGINFO // Print out DHT data
+        cout << "DHT Data\n\n";
+        cout << "AC tables\n";
+        for (int i=0; i<4; i++) {
+            int counter = 0;
+            cout << "Table ID: " << i << "\n";
+            for (int j=0; j<16; j++) {
+                cout << j+1 << ":" << data->huffmanTableFreqs[0][i][j] << "\n";
+            }
+            for (int k=0; k<data->huffmanTableFreqCount[0][i];k++) {
+                cout << hex << (int) data->huffmanTables[0][i][k] << " ";
+            }
+            cout << "\n";
+            
+
+            
+        }
+
+
+        
+    #endif
 
     previous = infile.get();
     current = infile.get();
