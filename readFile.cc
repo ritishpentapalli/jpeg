@@ -325,13 +325,7 @@ fileData* readFile(const string &fileName) {
                 cout << hex << (int) data->huffmanTables[0][i][k] << " ";
             }
             cout << "\n";
-            
-
-            
         }
-
-
-        
     #endif
 
     previous = infile.get();
