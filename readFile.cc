@@ -272,22 +272,26 @@ fileData* readFile(const string &fileName) {
         if (data->SoFData[2] == 1) {
             cout << "Greyscale image\n\n";
             cout << "Component ID: " << data->SoFData[3] << "\n";
-            cout << "Sampling Factor: " << data->SoFData[4] << "\n";
+            cout << "Horizontal Sampling Factor: " << ((data->SoFData[4] & 0xF0) >> 4) << "\n";
+            cout << "Vertical Sampling Factor: " << (data->SoFData[4] & 0x0F) << "\n";
             cout << "Quantization Table ID: " << data->SoFData[5] << "\n\n";
         }
         else if (data->SoFData[2] == 3) {
             cout << "YCBCr image\n\n";
             cout << "Y Component\n";
             cout << "Component ID: " << data->SoFData[3] << "\n";
-            cout << "Sampling Factor: " << data->SoFData[4] << "\n";
+            cout << "Horizontal Sampling Factor: " << ((data->SoFData[4] & 0xF0) >> 4) << "\n";
+            cout << "Vertical Sampling Factor: " << (data->SoFData[4] & 0x0F) << "\n";
             cout << "Quantization Table ID: " << data->SoFData[5] << "\n\n";
             cout << "Cb Component\n";
             cout << "Component ID: " << data->SoFData[6] << "\n";
-            cout << "Sampling Factor: " << data->SoFData[7] << "\n";
+            cout << "Horizontal Sampling Factor: " << ((data->SoFData[7] & 0xF0) >> 4) << "\n";
+            cout << "Vertical Sampling Factor: " << (data->SoFData[7] & 0x0F) << "\n";
             cout << "Quantization Table ID: " << data->SoFData[8] << "\n\n";
             cout << "Cr Component\n";
             cout << "Component ID: " << data->SoFData[9] << "\n";
-            cout << "Sampling Factor: " << data->SoFData[10] << "\n";
+            cout << "Horizontal Sampling Factor: " << ((data->SoFData[10] & 0xF0) >> 4) << "\n";
+            cout << "Vertical Sampling Factor: " << (data->SoFData[10] & 0x0F) << "\n";
             cout << "Quantization Table ID: " << data->SoFData[11] << "\n\n";
             cout << "###############" << "\n\n";
         }
@@ -314,15 +318,25 @@ fileData* readFile(const string &fileName) {
     
     #ifdef DEBUGINFO // Print out DHT data
         cout << "DHT Data\n\n";
-        cout << "AC tables\n";
+        cout << "DC tables\n";
         for (int i=0; i<4; i++) {
-            int counter = 0;
             cout << "Table ID: " << i << "\n";
             for (int j=0; j<16; j++) {
-                cout << j+1 << ":" << data->huffmanTableFreqs[0][i][j] << "\n";
+                cout << dec << j+1 << ":" << data->huffmanTableFreqs[0][i][j] << "\n";
             }
             for (int k=0; k<data->huffmanTableFreqCount[0][i];k++) {
                 cout << hex << (int) data->huffmanTables[0][i][k] << " ";
+            }
+            cout << "\n";
+        }
+         cout << "AC tables\n";
+        for (int i=0; i<4; i++) {
+            cout << "Table ID: " << i << "\n";
+            for (int j=0; j<16; j++) {
+                cout << dec << j+1 << ":" << data->huffmanTableFreqs[1][i][j] << "\n";
+            }
+            for (int k=0; k<data->huffmanTableFreqCount[1][i];k++) {
+                cout << hex << (int) data->huffmanTables[1][i][k] << " ";
             }
             cout << "\n";
         }
