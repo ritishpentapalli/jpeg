@@ -57,21 +57,21 @@ int main(int argc, char* argv[]) {
     DC0.tableClass = 0;
 
     HuffmanLookupTable DC1;
-    DC0.tableID = 0;
-    DC0.tableClass = 1;
+    DC1.tableID = 0;
+    DC1.tableClass = 1;
 
     HuffmanLookupTable AC0;
-    DC0.tableID = 1;
-    DC0.tableClass = 0;
+    AC0.tableID = 1;
+    AC0.tableClass = 0;
 
     HuffmanLookupTable AC1;
-    DC0.tableID = 1;
-    DC0.tableClass = 1;
+    AC1.tableID = 1;
+    AC1.tableClass = 1;
    
     int x = generateHuffmanCodes(data->huffmanTableFreqs[0][0], data->huffmanTables[0][0], DC0);
     x = generateHuffmanCodes(data->huffmanTableFreqs[0][0], data->huffmanTables[0][0], DC1);
     x = generateHuffmanCodes(data->huffmanTableFreqs[0][0], data->huffmanTables[0][0], AC0);
     x = generateHuffmanCodes(data->huffmanTableFreqs[0][0], data->huffmanTables[0][0], AC1);
-
+    
     return 0;
 }
