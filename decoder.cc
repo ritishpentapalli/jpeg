@@ -1,29 +1,36 @@
 #include <iostream>
 #include <fstream>
 #include "readFile.h"
+#include "decodeHuffman.h"
 
 using namespace std;
 
-int generateHuffmanCodes(int tableFreqs[]) {
+/*
+This function was entirely vibecoded, using just to debug.
+*/
+void printHuffmanTable(const HuffmanLookupTable &tbl) {
+    cout << "Huffman Table (class=" << tbl.tableClass
+         << ", id=" << tbl.tableID << ")\n";
 
-    uint16_t currCode = 0;
-    
-    for (int i=0; i<16; i++) {
+    for (const auto &lenEntry : tbl.table) {
+        int length = lenEntry.first;
+        const auto &codes = lenEntry.second;
 
-      int freqOfi = tableFreqs[i];
-      
-      for (int j=0; j<freqOfi; j++) {
-          cout << hex << currCode << " " << dec << i + 1<< "\n";
-          currCode += 1;
-      }
-      if (freqOfi) {
-        currCode <<= 1;
-      }
+        cout << "Length " << length << " bits:\n";
+
+        for (const auto &codeEntry : codes) {
+            uint16_t code = codeEntry.first;
+            byte_t symbol = codeEntry.second;
+
+            cout << "  code = "
+                 << hex << code
+                 << "  symbol = "
+                 << hex << (int)symbol
+                 << dec << "\n";
+        }
     }
-
-    return 0;
-
 }
+
 
 int main(int argc, char* argv[]) {
   
@@ -45,7 +52,12 @@ int main(int argc, char* argv[]) {
 
     cout << "\n\n";
 
-    int x = generateHuffmanCodes(data->huffmanTableFreqs[0][0]);
+    HuffmanLookupTable DC0;
+    DC0.tableID = 0;
+    DC0.tableClass = 0;
+    
+    int x = generateHuffmanCodes(data->huffmanTableFreqs[0][0], data->huffmanTables[0][0], DC0);
+    printHuffmanTable(DC0);
 
     return 0;
 }

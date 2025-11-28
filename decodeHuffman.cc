@@ -1,21 +1,29 @@
 #include <iostream>
+#include "types.h"
 #include "decodeHuffman.h"
 
+using namespace std;
 
-int generateHuffmanCodes(int table[], int tableFreqs[]) {
+
+int generateHuffmanCodes(int tableFreqs[], byte_t huffmanSymbols[], HuffmanLookupTable &lookupTable) {
 
     uint16_t currCode = 0;
+    int currSymbol = 0;
     
     for (int i=0; i<16; i++) {
-
       int freqOfi = tableFreqs[i];
-      
-      for (int j=0; j<freqOfi; j++) {
-          std::cout << std::hex << currCode << " " << std::dec << i + 1 << "\n";
-          currCode += 1;
-      }
 
-      currCode << 1;
+      for (int j=0; j<freqOfi; j++) {
+          
+          lookupTable.table[i+1][currCode] = huffmanSymbols[currSymbol];
+          // cout << hex << currCode << " " << dec << i + 1 << " " << hex << (int) huffmanSymbols[currSymbol]<<"\n";
+          // cout << dec << currSymbol << hex << (int) huffmanSymbols[currSymbol] << "\n";
+          currCode += 1;
+          currSymbol += 1;
+      }
+      if (freqOfi) {
+        currCode <<= 1;
+      }
     }
 
     return 0;

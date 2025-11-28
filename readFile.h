@@ -1,8 +1,7 @@
 #ifndef READFILE_H
 #define READFILE_H
 #include <vector>
-
-typedef unsigned char byte_t;
+#include "types.h"
 
 // JPEG Markers
 
