@@ -3,8 +3,7 @@
 #include "decodeHuffman.h"
 
 using namespace std;
-
-
+//TODO: Clean this function up, better naming
 int generateHuffmanCodes(int tableFreqs[], byte_t huffmanSymbols[], HuffmanLookupTable &lookupTable) {
 
     uint16_t currCode = 0;
@@ -17,7 +16,6 @@ int generateHuffmanCodes(int tableFreqs[], byte_t huffmanSymbols[], HuffmanLooku
           
           lookupTable.table[i+1][currCode] = huffmanSymbols[currSymbol];
           // cout << hex << currCode << " " << dec << i + 1 << " " << hex << (int) huffmanSymbols[currSymbol]<<"\n";
-          // cout << dec << currSymbol << hex << (int) huffmanSymbols[currSymbol] << "\n";
           currCode += 1;
           currSymbol += 1;
       }
@@ -25,8 +23,6 @@ int generateHuffmanCodes(int tableFreqs[], byte_t huffmanSymbols[], HuffmanLooku
         currCode <<= 1;
       }
     }
-
     return 0;
-
 }
 
